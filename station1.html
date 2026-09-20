@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>藥物諮詢站｜OSCE 互動教學</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F1F3EE;
+    --card:#FFFFFF;
+    --ink:#16302A;
+    --ink-soft:#4A6058;
+    --amber:#C98A2C;
+    --amber-deep:#9C6A1E;
+    --amber-pale:#F3E3C6;
+    --alert:#B23A2F;
+    --alert-pale:#F5DEDB;
+    --success:#3F7D58;
+    --success-pale:#DCEAE1;
+    --line:#D8DCD2;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:28px 28px;
+    background-position:-1px -1px;
+    color:var(--ink);
+    font-family:"Noto Sans TC", sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:28px 20px 80px;}
+
+  /* ---- Header / chart tab nav ---- */
+  header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap;}
+  .brand{display:flex;flex-direction:column;gap:2px;}
+  .brand .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--amber-deep);text-transform:uppercase;}
+  .brand h1{font-family:"Noto Serif TC",serif;font-weight:900;font-size:clamp(22px,4vw,30px);margin:2px 0 0;}
+
+  .tabbar{display:flex;gap:0;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px;box-shadow:0 1px 0 rgba(22,48,42,.04);}
+  .tabbar button{
+    appearance:none;border:0;background:transparent;
+    font-family:"Noto Sans TC",sans-serif;font-weight:700;font-size:14px;
+    color:var(--ink-soft);padding:9px 18px;border-radius:999px;cursor:pointer;
+    transition:background .18s ease, color .18s ease;
+  }
+  .tabbar button.active{background:var(--ink);color:#fff;}
+  .tabbar button:not(.active):hover{background:var(--paper);}
+
+  /* ---- Scenario card ---- */
+  .case-card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px 24px;margin-bottom:20px;
+    box-shadow:0 1px 2px rgba(22,48,42,.05);
+    position:relative;
+  }
+  .case-card::before{
+    content:"情境卡";
+    position:absolute;top:-11px;left:20px;background:var(--ink);color:#fff;
+    font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;
+    padding:3px 10px;border-radius:6px;
+  }
+  .case-card h2{font-family:"Noto Serif TC",serif;font-size:19px;margin:6px 0 10px;}
+  .case-card p{line-height:1.85;color:var(--ink-soft);margin:0 0 8px;font-size:15px;}
+  .tag-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .tag{font-family:"IBM Plex Mono",monospace;font-size:11.5px;background:var(--amber-pale);color:var(--amber-deep);padding:4px 10px;border-radius:6px;}
+
+  /* ---- Practice mode: step flow ---- */
+  .step{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px 22px;margin-bottom:16px;
+  }
+  .step .step-label{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .step .num{
+    width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:13px;flex-shrink:0;
+  }
+  .step .num.done{background:var(--success);}
+  .step h3{font-family:"Noto Serif TC",serif;font-size:16px;margin:0;}
+  .step .speaker{font-size:14.5px;color:var(--ink-soft);line-height:1.8;margin:0 0 14px 36px;padding:10px 14px;background:var(--paper);border-radius:10px;border-left:3px solid var(--amber);}
+  .choices{display:flex;flex-direction:column;gap:8px;margin-left:36px;}
+  .choice{
+    text-align:left;border:1px solid var(--line);background:#fff;border-radius:10px;
+    padding:11px 14px;font-family:"Noto Sans TC",sans-serif;font-size:14.5px;color:var(--ink);
+    cursor:pointer;transition:border-color .15s ease, background .15s ease;
+  }
+  .choice:hover{border-color:var(--amber);}
+  .choice.picked-correct{border-color:var(--success);background:var(--success-pale);}
+  .choice.picked-wrong{border-color:var(--alert);background:var(--alert-pale);}
+  .choice[disabled]{cursor:default;}
+  .feedback{margin:10px 0 0 36px;font-size:14px;line-height:1.75;padding:10px 14px;border-radius:10px;display:none;}
+  .feedback.show{display:block;}
+  .feedback.good{background:var(--success-pale);color:#245038;}
+  .feedback.bad{background:var(--alert-pale);color:#7c2820;}
+
+  .next-btn{display:block;margin:14px 0 0 36px;background:var(--ink);color:#fff;border:0;border-radius:10px;
+    padding:10px 20px;font-weight:700;font-size:14px;cursor:pointer;}
+  .next-btn:hover{background:var(--amber-deep);}
+  .hidden{display:none !important;}
+
+  /* ---- Summary ---- */
+  .summary{background:var(--ink);color:#fff;border-radius:var(--radius);padding:26px;margin-top:8px;}
+  .summary h3{font-family:"Noto Serif TC",serif;margin:0 0 4px;font-size:19px;}
+  .summary .score-big{font-family:"IBM Plex Mono",monospace;font-size:40px;font-weight:600;color:var(--amber);margin:8px 0;}
+  .summary ul{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:6px;}
+  .summary li{font-size:13.5px;color:#DCE6E1;display:flex;gap:8px;align-items:flex-start;}
+  .summary li .mark{flex-shrink:0;}
+  .summary li.miss{color:#F0C8C2;}
+
+  /* ---- Exam mode ---- */
+  .exam-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px;}
+  .field{display:flex;flex-direction:column;gap:4px;}
+  .field label{font-size:12px;color:var(--ink-soft);font-weight:700;}
+  .field input{font-family:"Noto Sans TC",sans-serif;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;}
+  .timer{
+    font-family:"IBM Plex Mono",monospace;font-size:26px;font-weight:600;color:var(--ink);
+    background:var(--amber-pale);border:1px solid var(--amber);padding:6px 16px;border-radius:10px;
+  }
+  .timer.low{color:var(--alert);background:var(--alert-pale);border-color:var(--alert);}
+  .timer-btns button{font-family:"Noto Sans TC";font-size:12.5px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;margin-left:6px;cursor:pointer;}
+
+  .checklist{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:18px;}
+  .check-item{display:flex;align-items:flex-start;gap:12px;padding:13px 18px;border-bottom:1px solid var(--line);}
+  .check-item:last-child{border-bottom:0;}
+  .check-item.critical{background:#FFFCF6;}
+  .pill-check{
+    width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex-shrink:0;margin-top:2px;
+    cursor:pointer;position:relative;transition:border-color .15s ease, background .15s ease;
+  }
+  .pill-check.on{background:var(--amber);border-color:var(--amber-deep);}
+  .pill-check.on::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;}
+  .check-text{flex:1;}
+  .check-text .t{font-size:14.5px;font-weight:500;}
+  .check-text .c{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--alert);letter-spacing:.06em;margin-top:2px;}
+
+  .submit-bar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 20px;}
+  .submit-bar .result{font-family:"IBM Plex Mono",monospace;font-size:14px;}
+  .submit-bar button{background:var(--ink);color:#fff;border:0;border-radius:10px;padding:11px 22px;font-weight:700;font-size:14.5px;cursor:pointer;}
+  .submit-bar button:hover{background:var(--amber-deep);}
+  .submit-bar button:disabled{background:var(--line);cursor:not-allowed;}
+  .status-msg{font-size:12.5px;color:var(--ink-soft);margin-top:8px;}
+
+  footer.note{margin-top:26px;font-size:12px;color:var(--ink-soft);text-align:center;line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <span class="eyebrow">OSCE · 站別一</span>
+      <h1>藥物諮詢站</h1>
+    </div>
+    <div class="tabbar">
+      <button id="tab-practice" class="active" onclick="switchMode('practice')">練習模式</button>
+      <button id="tab-exam" onclick="switchMode('exam')">評分模式</button>
+    </div>
+  </header>
+
+  <div class="case-card">
+    <h2>陳女士，65歲</h2>
+    <p>長期服用 Warfarin（可邁丁）控制心房顫動。今日持醫師新開立的處方箋前來，主訴這兩天牙痛，處方內含一項消炎止痛藥。領藥時隨口問了一句：「我可以自己去買維他命E來吃嗎？」</p>
+    <div class="tag-row">
+      <span class="tag">慢性病史：心房顫動</span>
+      <span class="tag">目前用藥：Warfarin</span>
+      <span class="tag">新處方：NSAID</span>
+    </div>
+  </div>
+
+  <!-- ================= PRACTICE MODE ================= -->
+  <div id="mode-practice">
+    <div id="steps"></div>
+    <div id="summary-practice" class="summary hidden"></div>
+  </div>
+
+  <!-- ================= EXAM MODE ================= -->
+  <div id="mode-exam" class="hidden">
+
+    <div class="exam-head">
+      <div class="field">
+        <label>學生姓名</label>
+        <input id="examName" type="text" placeholder="請輸入姓名">
+      </div>
+      <div class="field">
+        <label>身份</label>
+        <input id="examRole" type="text" placeholder="實習生 / PGY">
+      </div>
+      <div>
+        <div class="timer" id="timerDisplay">08:00</div>
+        <div class="timer-btns">
+          <button onclick="startTimer()">開始</button>
+          <button onclick="resetTimer()">重設</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="checklist" id="checklist"></div>
+
+    <div class="submit-bar">
+      <div>
+        <div class="result" id="examResult">關鍵步驟：0/3　總分：0/9</div>
+        <div class="status-msg" id="examStatus">評分完成後按送出，會寫入試算表紀錄成績。</div>
+      </div>
+      <button id="submitBtn" onclick="submitExam()">送出成績</button>
+    </div>
+  </div>
+
+  <footer class="note">
+    麻豆新樓醫院藥劑科 OSCE 互動教學原型 · 站別一：藥物諮詢站<br>
+    評分模式送出資料串接 Google Apps Script（GAS_URL 請於部署後填入 scoring.js 對應位置）
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   共用資料：練習模式的分支選項 + 評分模式的checklist
+   兩者的「關鍵步驟」互相對應，方便老師比對練習表現與正式評分
+   ============================================================ */
+
+const steps = [
+  {
+    id:"open",
+    title:"開場",
+    speaker:"（陳女士走到諮詢窗口，手上拿著處方箋）",
+    choices:[
+      {text:"「要拿什麼藥？處方箋給我。」", correct:false, fb:"缺少自我介紹與身份核對，容易讓病人感覺不受重視，也可能拿錯病人的藥。"},
+      {text:"自我介紹、核對病人身分，並說明今天會協助她了解新開立的藥物。", correct:true, fb:"正確。開場核對身份是用藥安全的第一步，也建立病人對諮詢的信任感。"},
+      {text:"直接開始念藥袋上的用法。", correct:false, fb:"跳過了身份核對與建立信任的步驟，也還沒了解病人完整用藥狀況就開始說明，風險較高。"}
+    ]
+  },
+  {
+    id:"history",
+    title:"用藥史詢問",
+    speaker:"陳女士：「我平常就只有吃心臟科開的藥啦，其他沒有特別在吃什麼。」",
+    choices:[
+      {text:"接受回答，直接開始說明新藥用法。", correct:false, fb:"病人常會忽略成藥、保健品，若不主動詢問，容易漏掉重要交互作用線索（例如稍後才提到的維他命E）。"},
+      {text:"追問：「除了心臟科的藥，有沒有自己買的維他命、保健品，或偶爾吃的成藥？」", correct:true, fb:"正確。主動且具體地詢問成藥/保健品，是挖出隱藏用藥史的關鍵技巧，PGY等級尤其該養成這個習慣。"}
+    ]
+  },
+  {
+    id:"allergy",
+    title:"過敏史與病史確認",
+    speaker:"（你決定進一步確認病人的安全用藥背景）",
+    choices:[
+      {text:"詢問藥物過敏史，並確認目前腎功能、肝功能是否有異常紀錄。", correct:true, fb:"正確，且是本站的關鍵步驟。過敏史與腎肝功能會直接影響用藥選擇是否安全。"},
+      {text:"跳過，直接進入下一步。", correct:false, fb:"漏掉過敏史與腎肝功能確認，是本站的關鍵步驟缺失，臨床上可能導致嚴重不良反應。"}
+    ],
+    critical:true
+  },
+  {
+    id:"interaction",
+    title:"問題辨識：交互作用",
+    speaker:"陳女士：「對了，我可以自己去買維他命E來吃嗎？」（處方箋上新開的止痛藥是NSAID類）",
+    choices:[
+      {text:"「維他命E跟止痛藥都可以正常吃，沒問題。」", correct:false, fb:"不正確且有風險。Warfarin 併用 NSAID、或併用高劑量維他命E，都可能增加出血風險，不應輕易說沒問題。"},
+      {text:"說明：因為她長期服用Warfarin，這次新開的NSAID及自行加買的維他命E，都可能增加出血風險，建議先不要自行添加維他命E。", correct:true, fb:"正確，且是本站最關鍵的步驟。同時辨識出「新處方NSAID」與「病人主動提到的維他命E」兩個風險點，是這一站真正在考核的臨床判斷力。"}
+    ],
+    critical:true
+  },
+  {
+    id:"suggest",
+    title:"建議提出",
+    speaker:"陳女士：「喔？那我牙痛怎麼辦，不能吃這個止痛藥嗎？」",
+    choices:[
+      {text:"建議先照原處方吃，之後再看狀況。", correct:false, fb:"沒有提出替代方案，也沒有處理病人實際的止痛需求。"},
+      {text:"建議可詢問醫師是否能改用出血風險較低的止痛藥（如Acetaminophen普拿疼類），並表示會協助確認。", correct:true, fb:"正確。提出具體替代方案，同時展現藥師在跨團隊溝通中的角色。"}
+    ]
+  },
+  {
+    id:"followup",
+    title:"後續處理",
+    speaker:"（病人的止痛需求與用藥風險都已說明清楚）",
+    choices:[
+      {text:"直接請病人自己回診跟醫師說。", correct:false, fb:"藥師發現的用藥疑慮，應主動協助聯繫確認，而非把責任完全交還給病人。"},
+      {text:"表示會先聯繫/建議醫師確認是否調整處方，並請病人稍候或留下聯絡方式。", correct:true, fb:"正確。主動介入確認處方是藥師專業角色的展現。"}
+    ]
+  }
+];
+
+const checklistItems = [
+  {t:"自我介紹、核對病人身分", critical:false},
+  {t:"主動詢問目前所有用藥（含成藥/保健品）", critical:false},
+  {t:"詢問過敏史、腎肝功能相關病史", critical:true},
+  {t:"正確辨識 Warfarin－NSAID 交互作用", critical:true},
+  {t:"正確回應維他命E疑慮（增加出血風險）", critical:true},
+  {t:"提出替代止痛藥選項", critical:false},
+  {t:"溝通方式病人能理解、非單純背誦", critical:false},
+  {t:"表示會/建議聯繫醫師確認處方", critical:false},
+  {t:"詢問病人是否還有疑問、提供聯絡方式", critical:false}
+];
+
+/* ---------------- Practice mode logic ---------------- */
+let current = 0;
+let results = []; // {id, title, correct, critical}
+
+function renderStep(){
+  const box = document.getElementById("steps");
+  box.innerHTML = "";
+  steps.forEach((s, i) => {
+    if(i > current) return;
+    const done = i < current;
+    const el = document.createElement("div");
+    el.className = "step";
+    el.innerHTML = `
+      <div class="step-label">
+        <div class="num ${done?'done':''}">${done?'✓':(i+1)}</div>
+        <h3>${s.title}${s.critical?'　<span style="font-family:\'IBM Plex Mono\',monospace;font-size:10.5px;color:var(--alert);">關鍵步驟</span>':''}</h3>
+      </div>
+      <p class="speaker">${s.speaker}</p>
+      <div class="choices" id="choices-${i}"></div>
+      <div class="feedback" id="fb-${i}"></div>
+      ${i===current ? '' : ''}
+    `;
+    box.appendChild(el);
+
+    const cWrap = el.querySelector(`#choices-${i}`);
+    s.choices.forEach((c, ci) => {
+      const btn = document.createElement("button");
+      btn.className = "choice";
+      btn.textContent = c.text;
+      if(i < current){
+        btn.disabled = true;
+        if(results[i] && results[i].pickedText === c.text){
+          btn.classList.add(results[i].correct ? "picked-correct" : "picked-wrong");
+        }
+      } else {
+        btn.onclick = () => pickChoice(i, ci);
+      }
+      cWrap.appendChild(btn);
+    });
+
+    if(i < current && results[i]){
+      const fb = el.querySelector(`#fb-${i}`);
+      fb.className = "feedback show " + (results[i].correct ? "good" : "bad");
+      fb.textContent = (results[i].correct ? "✓ " : "△ ") + results[i].fb;
+    }
+  });
+
+  if(current >= steps.length){
+    showSummary();
+  }
+}
+
+function pickChoice(stepIndex, choiceIndex){
+  const s = steps[stepIndex];
+  const c = s.choices[choiceIndex];
+  results[stepIndex] = {id:s.id, title:s.title, correct:c.correct, critical:!!s.critical, fb:c.fb, pickedText:c.text};
+
+  // lock choices, show feedback inline before moving on
+  const cWrap = document.getElementById(`choices-${stepIndex}`);
+  [...cWrap.children].forEach((btn, idx) => {
+    btn.disabled = true;
+    if(idx === choiceIndex) btn.classList.add(c.correct ? "picked-correct" : "picked-wrong");
+  });
+  const fb = document.getElementById(`fb-${stepIndex}`);
+  fb.className = "feedback show " + (c.correct ? "good" : "bad");
+  fb.textContent = (c.correct ? "✓ " : "△ ") + c.fb;
+
+  const nextBtn = document.createElement("button");
+  nextBtn.className = "next-btn";
+  nextBtn.textContent = stepIndex === steps.length - 1 ? "完成本站" : "下一步";
+  nextBtn.onclick = () => { current++; renderStep(); };
+  fb.insertAdjacentElement("afterend", nextBtn);
+}
+
+function showSummary(){
+  const total = results.length;
+  const correctCount = results.filter(r => r.correct).length;
+  const criticalTotal = results.filter(r => r.critical).length;
+  const criticalHit = results.filter(r => r.critical && r.correct).length;
+  const box = document.getElementById("summary-practice");
+  box.classList.remove("hidden");
+  box.innerHTML = `
+    <h3>練習完成</h3>
+    <div class="score-big">${correctCount} / ${total}</div>
+    <div style="font-size:13px;color:#DCE6E1;">關鍵步驟達成：${criticalHit} / ${criticalTotal}</div>
+    <ul>
+      ${results.map(r => `<li class="${r.correct?'':'miss'}"><span class="mark">${r.correct?'✓':'△'}</span><span>${r.title}${r.critical?'（關鍵）':''}</span></li>`).join("")}
+    </ul>
+  `;
+}
+
+/* ---------------- Exam mode logic ---------------- */
+function renderChecklist(){
+  const box = document.getElementById("checklist");
+  box.innerHTML = "";
+  checklistItems.forEach((item, i) => {
+    const row = document.createElement("div");
+    row.className = "check-item" + (item.critical ? " critical" : "");
+    row.innerHTML = `
+      <div class="pill-check" id="pill-${i}" onclick="toggleCheck(${i})"></div>
+      <div class="check-text">
+        <div class="t">${item.t}</div>
+        ${item.critical ? '<div class="c">關鍵步驟</div>' : ''}
+      </div>
+    `;
+    box.appendChild(row);
+  });
+  updateExamResult();
+}
+
+let checkState = new Array(checklistItems.length).fill(false);
+function toggleCheck(i){
+  checkState[i] = !checkState[i];
+  document.getElementById(`pill-${i}`).classList.toggle("on", checkState[i]);
+  updateExamResult();
+}
+function updateExamResult(){
+  const totalScore = checkState.filter(Boolean).length;
+  const criticalIdx = checklistItems.map((it,i)=>it.critical?i:-1).filter(i=>i>=0);
+  const criticalHit = criticalIdx.filter(i=>checkState[i]).length;
+  document.getElementById("examResult").textContent =
+    `關鍵步驟：${criticalHit}/${criticalIdx.length}　總分：${totalScore}/${checklistItems.length}`;
+}
+
+/* ---------------- Timer ---------------- */
+let timerSeconds = 8*60;
+let timerInterval = null;
+function tickTimer(){
+  const m = String(Math.floor(timerSeconds/60)).padStart(2,"0");
+  const s = String(timerSeconds%60).padStart(2,"0");
+  const disp = document.getElementById("timerDisplay");
+  disp.textContent = `${m}:${s}`;
+  disp.classList.toggle("low", timerSeconds <= 60);
+  if(timerSeconds <= 0){
+    clearInterval(timerInterval);
+    timerInterval = null;
+    return;
+  }
+  timerSeconds--;
+}
+function startTimer(){
+  if(timerInterval) return;
+  timerInterval = setInterval(tickTimer, 1000);
+}
+function resetTimer(){
+  clearInterval(timerInterval);
+  timerInterval = null;
+  timerSeconds = 8*60;
+  tickTimer();
+  timerSeconds = 8*60;
+}
+
+/* ---------------- Submit to Google Apps Script ---------------- */
+// 部署後，把你的 Apps Script 網頁應用程式網址填在這裡（比照 RX-03 的做法）
+const GAS_URL = ""; // 例如 "https://script.google.com/macros/s/xxxxx/exec"
+
+function submitExam(){
+  const name = document.getElementById("examName").value.trim();
+  const role = document.getElementById("examRole").value.trim();
+  const statusEl = document.getElementById("examStatus");
+
+  if(!name){
+    statusEl.textContent = "請先輸入學生姓名再送出。";
+    statusEl.style.color = "var(--alert)";
+    return;
+  }
+
+  const totalScore = checkState.filter(Boolean).length;
+  const criticalIdx = checklistItems.map((it,i)=>it.critical?i:-1).filter(i=>i>=0);
+  const criticalHit = criticalIdx.filter(i=>checkState[i]).length;
+  const pass = criticalHit === criticalIdx.length;
+
+  const payload = {
+    station: "站別一：藥物諮詢站",
+    name, role,
+    date: new Date().toISOString().slice(0,10),
+    items: checklistItems.map((it,i)=>({t:it.t, critical:it.critical, done:checkState[i]})),
+    totalScore, totalItems: checklistItems.length,
+    criticalHit, criticalTotal: criticalIdx.length,
+    pass
+  };
+
+  document.getElementById("submitBtn").disabled = true;
+
+  if(!GAS_URL){
+    statusEl.textContent = "尚未設定 GAS_URL，成績目前只在本機顯示，尚未寫入試算表。";
+    statusEl.style.color = "var(--ink-soft)";
+    document.getElementById("submitBtn").disabled = false;
+    return;
+  }
+
+  fetch(GAS_URL, {
+    method: "POST",
+    headers: {"Content-Type":"text/plain"}, // 避免CORS preflight，比照RX-03做法
+    body: JSON.stringify(payload)
+  }).then(r => r.text()).then(() => {
+    statusEl.textContent = `已送出：${name}（${pass?"通過":"未通過"}），成績已寫入試算表。`;
+    statusEl.style.color = "var(--success)";
+  }).catch(() => {
+    statusEl.textContent = "送出失敗，請檢查網路連線或Apps Script網址設定。";
+    statusEl.style.color = "var(--alert)";
+    document.getElementById("submitBtn").disabled = false;
+  });
+}
+
+/* ---------------- Mode switch ---------------- */
+function switchMode(mode){
+  document.getElementById("tab-practice").classList.toggle("active", mode==="practice");
+  document.getElementById("tab-exam").classList.toggle("active", mode==="exam");
+  document.getElementById("mode-practice").classList.toggle("hidden", mode!=="practice");
+  document.getElementById("mode-exam").classList.toggle("hidden", mode!=="exam");
+}
+
+/* ---------------- Init ---------------- */
+renderStep();
+renderChecklist();
+tickTimer();
+</script>
+</body>
+</html>
