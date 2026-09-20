@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>藥學 OSCE 互動教學平台</title>
+<title>藥學互動式教學平台</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -16,6 +16,9 @@
     --amber:#C98A2C;
     --amber-deep:#9C6A1E;
     --amber-pale:#F3E3C6;
+    --teal:#2E6E8E;
+    --teal-deep:#204F68;
+    --teal-pale:#DCE9EF;
     --success:#3F7D58;
     --success-pale:#DCEAE1;
     --line:#D8DCD2;
@@ -35,17 +38,23 @@
     -webkit-font-smoothing:antialiased;
     min-height:100vh;
   }
-  .wrap{max-width:920px;margin:0 auto;padding:40px 20px 80px;}
+  .wrap{max-width:980px;margin:0 auto;padding:40px 20px 80px;}
 
-  header{margin-bottom:32px;}
-  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--amber-deep);text-transform:uppercase;}
+  header{margin-bottom:36px;}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--ink-soft);text-transform:uppercase;}
   h1{font-family:"Noto Serif TC",serif;font-weight:900;font-size:clamp(26px,5vw,36px);margin:6px 0 8px;}
-  header p{color:var(--ink-soft);font-size:15px;line-height:1.8;max-width:560px;margin:0;}
+  header p{color:var(--ink-soft);font-size:15px;line-height:1.8;max-width:620px;margin:0;}
 
-  .section-label{
-    font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.1em;color:var(--ink-soft);
-    text-transform:uppercase;margin:30px 0 12px;padding-left:2px;
+  .theme-block{margin-bottom:38px;}
+  .theme-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+  .theme-badge{
+    font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:12px;letter-spacing:.06em;
+    padding:5px 12px;border-radius:8px;
   }
+  .theme-badge.osce{background:var(--amber-pale);color:var(--amber-deep);}
+  .theme-badge.dops{background:var(--teal-pale);color:var(--teal-deep);}
+  .theme-head h2{font-family:"Noto Serif TC",serif;font-size:20px;margin:0;}
+  .theme-head .sub{font-size:13px;color:var(--ink-soft);width:100%;margin-top:-6px;}
 
   .grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(260px,1fr));gap:16px;}
 
@@ -55,7 +64,8 @@
     text-decoration:none;color:inherit;transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
   }
   .card.active{cursor:pointer;}
-  .card.active:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(22,48,42,.08);border-color:var(--amber);}
+  .card.osce.active:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(22,48,42,.08);border-color:var(--amber);}
+  .card.dops.active:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(22,48,42,.08);border-color:var(--teal);}
   .card.soon{opacity:.6;cursor:default;}
 
   .card .num{
@@ -70,11 +80,14 @@
     padding:3px 9px;border-radius:6px;align-self:flex-start;margin-top:2px;
   }
   .status.ready{background:var(--success-pale);color:#245038;}
-  .status.soon{background:var(--amber-pale);color:var(--amber-deep);}
+  .status.soon-osce{background:var(--amber-pale);color:var(--amber-deep);}
+  .status.soon-dops{background:var(--teal-pale);color:var(--teal-deep);}
+  .status.modewrap{display:flex;gap:6px;flex-wrap:wrap;}
+  .status.mode{background:var(--paper);color:var(--ink-soft);border:1px solid var(--line);}
 
   .admin-card{
     background:var(--ink);color:#fff;border-radius:var(--radius);padding:22px;
-    display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:30px;
+    display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:6px;
   }
   .admin-card div h3{font-family:"Noto Serif TC",serif;margin:0 0 4px;font-size:17px;color:#fff;}
   .admin-card div p{margin:0;font-size:13px;color:#CBDAD3;}
@@ -87,48 +100,95 @@
 <div class="wrap">
 
   <header>
-    <span class="eyebrow">Pharmacy OSCE</span>
-    <h1>藥學 OSCE 互動教學平台</h1>
-    <p>提供實習生與PGY用藥情境練習與正式評分，各站皆有練習模式（情境互動＋即時回饋）與評分模式（電子checklist＋成績自動記錄）。</p>
+    <span class="eyebrow">Pharmacy Interactive Teaching Platform</span>
+    <h1>藥學互動式教學平台</h1>
+    <p>依臨床藥學會 OSCE 與 DOPS／EPA 架構設計，提供實習生與PGY情境練習、技能直接觀察評量，成績自動記錄可匯出。</p>
   </header>
 
-  <div class="section-label">站別</div>
-  <div class="grid">
-
-    <a class="card active" href="station1.html">
-      <div class="num">1</div>
-      <h3>藥物諮詢站</h3>
-      <p>處方交互作用辨識、用藥史詢問、跨團隊溝通建議。</p>
-      <span class="status ready">可使用</span>
-    </a>
-
-    <div class="card soon">
-      <div class="num">2</div>
-      <h3>藥物衛教站</h3>
-      <p>胰島素筆操作示範、Metformin衛教、teach-back確認理解。</p>
-      <span class="status soon">籌備中</span>
+  <!-- ===== OSCE ===== -->
+  <div class="theme-block">
+    <div class="theme-head">
+      <span class="theme-badge osce">主題一</span>
+      <h2>客觀結構式臨床測驗 OSCE</h2>
+      <span class="sub">衛教與諮詢站別｜練習模式（情境互動＋即時回饋）＋評分模式（checklist）</span>
     </div>
+    <div class="grid">
 
-    <!--
-      新增站別時，複製上面 <a class="card active" ...> 這個區塊即可：
-      - href 改成新站別的檔名，例如 station3.html
-      - .num 裡的數字改成站別序號
-      - 標題與說明文字改成新站別內容
-      - status 從 soon 改成 ready，class 從 card soon 改成 card active
-    -->
+      <a class="card osce active" href="station1.html">
+        <div class="num">1</div>
+        <h3>藥物諮詢站</h3>
+        <p>處方交互作用辨識、用藥史詢問、跨團隊溝通建議。</p>
+        <div class="status modewrap">
+          <span class="status ready">可使用</span>
+          <span class="status mode">練習＋評分</span>
+        </div>
+      </a>
 
+      <div class="card soon">
+        <div class="num">2</div>
+        <h3>藥物衛教站</h3>
+        <p>胰島素筆操作示範、Metformin衛教、teach-back確認理解。</p>
+        <span class="status soon-osce">籌備中</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== DOPS ===== -->
+  <div class="theme-block">
+    <div class="theme-head">
+      <span class="theme-badge dops">主題二</span>
+      <h2>臨床技能直接觀察評量 DOPS</h2>
+      <span class="sub">磨粉、發藥、調劑等技術站別｜評分模式：關鍵步驟checklist＋EPA七級信賴量表</span>
+    </div>
+    <div class="grid">
+
+      <a class="card dops active" href="dops1.html">
+        <div class="num">1</div>
+        <h3>磨粉站</h3>
+        <p>醫囑核對、劑型禁忌辨識、磨粉操作、分裝標示、器械清潔消毒。</p>
+        <div class="status modewrap">
+          <span class="status ready">可使用</span>
+          <span class="status mode">評分模式</span>
+        </div>
+      </a>
+
+      <div class="card soon">
+        <div class="num">2</div>
+        <h3>發藥站</h3>
+        <p>處方核對、藥品調配正確性、給藥前確認與病人交付。</p>
+        <span class="status soon-dops">籌備中</span>
+      </div>
+
+      <div class="card soon">
+        <div class="num">3</div>
+        <h3>調劑站</h3>
+        <p>無菌調劑技術、劑量換算、標籤標示正確性。</p>
+        <span class="status soon-dops">籌備中</span>
+      </div>
+
+      <!--
+        新增DOPS站別時，複製 <a class="card dops active" ...> 這個區塊：
+        - href 改成新站別檔名，例如 dops2.html
+        - .num 數字改成站別序號
+        - 標題與說明改成新站別內容
+        - status 從 soon-dops 改成 ready，並加上 modewrap+mode「評分模式」
+        - class 從 card soon 改成 card dops active
+      -->
+
+    </div>
   </div>
 
   <div class="admin-card">
     <div>
       <h3>老師後台</h3>
-      <p>查看各站歷次成績、依學生/日期篩選、匯出紀錄</p>
+      <p>查看OSCE／DOPS各站歷次成績、依學生/日期篩選、匯出紀錄</p>
     </div>
     <span class="status">籌備中</span>
   </div>
 
   <footer class="note">
-    藥學 OSCE 互動教學平台 · 各站評分模式串接 Google Apps Script 自動記錄成績
+    藥學互動式教學平台 · OSCE與DOPS評分皆串接 Google Apps Script，自動依站別分頁記錄成績
   </footer>
 </div>
 </body>

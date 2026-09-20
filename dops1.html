@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>磨粉站｜DOPS 直接觀察評量</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EEF2F3;
+    --card:#FFFFFF;
+    --ink:#16302A;
+    --ink-soft:#4A6058;
+    --teal:#2E6E8E;
+    --teal-deep:#204F68;
+    --teal-pale:#DCE9EF;
+    --alert:#B23A2F;
+    --alert-pale:#F5DEDB;
+    --success:#3F7D58;
+    --success-pale:#DCEAE1;
+    --line:#D7DEDF;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:28px 28px;
+    background-position:-1px -1px;
+    color:var(--ink);
+    font-family:"Noto Sans TC", sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:28px 20px 80px;}
+
+  header.top{margin-bottom:18px;}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--teal-deep);text-transform:uppercase;}
+  h1{font-family:"Noto Serif TC",serif;font-weight:900;font-size:clamp(22px,4vw,30px);margin:4px 0 0;}
+  .back-link{display:inline-block;margin-top:10px;font-size:13px;color:var(--teal-deep);text-decoration:none;font-weight:700;}
+  .back-link:hover{text-decoration:underline;}
+
+  .task-card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px 24px;margin-bottom:20px;position:relative;
+  }
+  .task-card::before{
+    content:"任務情境";
+    position:absolute;top:-11px;left:20px;background:var(--teal-deep);color:#fff;
+    font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;
+    padding:3px 10px;border-radius:6px;
+  }
+  .task-card h2{font-family:"Noto Serif TC",serif;font-size:19px;margin:6px 0 10px;}
+  .task-card p{line-height:1.85;color:var(--ink-soft);margin:0;font-size:15px;}
+
+  .exam-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
+  .field{display:flex;flex-direction:column;gap:4px;}
+  .field label{font-size:12px;color:var(--ink-soft);font-weight:700;}
+  .field input{font-family:"Noto Sans TC",sans-serif;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;min-width:180px;}
+
+  .section-label{
+    font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.1em;color:var(--ink-soft);
+    text-transform:uppercase;margin:26px 0 10px;padding-left:2px;
+  }
+
+  .checklist{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:10px;}
+  .check-item{display:flex;align-items:flex-start;gap:12px;padding:13px 18px;border-bottom:1px solid var(--line);}
+  .check-item:last-child{border-bottom:0;}
+  .check-item.critical{background:#FAFCFD;}
+  .pill-check{
+    width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex-shrink:0;margin-top:2px;
+    cursor:pointer;position:relative;transition:border-color .15s ease, background .15s ease;
+  }
+  .pill-check.on{background:var(--teal);border-color:var(--teal-deep);}
+  .pill-check.on::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;}
+  .check-text{flex:1;}
+  .check-text .t{font-size:14.5px;font-weight:500;}
+  .check-text .c{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--alert);letter-spacing:.06em;margin-top:2px;}
+
+  .entrust-wrap{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+  .entrust-option{
+    display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--line);
+    border-radius:10px;padding:13px 16px;cursor:pointer;transition:border-color .15s ease, background .15s ease;
+  }
+  .entrust-option:hover{border-color:var(--teal);}
+  .entrust-option.selected{border-color:var(--teal-deep);background:var(--teal-pale);}
+  .entrust-option .lvl{
+    font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:13px;color:var(--teal-deep);
+    background:var(--teal-pale);border-radius:6px;padding:2px 8px;flex-shrink:0;margin-top:1px;
+  }
+  .entrust-option.selected .lvl{background:var(--teal-deep);color:#fff;}
+  .entrust-option .desc{font-size:14px;line-height:1.6;}
+  .entrust-option .desc b{font-weight:700;}
+
+  .submit-bar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 20px;margin-top:8px;}
+  .submit-bar .result{font-family:"IBM Plex Mono",monospace;font-size:14px;}
+  .submit-bar button{background:var(--teal-deep);color:#fff;border:0;border-radius:10px;padding:11px 22px;font-weight:700;font-size:14.5px;cursor:pointer;}
+  .submit-bar button:hover{background:var(--ink);}
+  .submit-bar button:disabled{background:var(--line);cursor:not-allowed;}
+  .status-msg{font-size:12.5px;color:var(--ink-soft);margin-top:8px;}
+
+  footer.note{margin-top:26px;font-size:12px;color:var(--ink-soft);text-align:center;line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <span class="eyebrow">DOPS · 直接觀察評量</span>
+    <h1>磨粉站</h1>
+    <a class="back-link" href="index.html">← 回平台首頁</a>
+  </header>
+
+  <div class="task-card">
+    <h2>任務說明</h2>
+    <p>學生／PGY需依醫囑完成藥品磨粉調劑，包含醫囑核對、藥品辨識、操作磨粉機、分裝標示與器械清潔消毒。評分者於旁全程觀察操作過程，依下方關鍵步驟checklist與整體信賴等級進行評分。</p>
+  </div>
+
+  <div class="exam-head">
+    <div class="field">
+      <label>學生姓名</label>
+      <input id="examName" type="text" placeholder="請輸入姓名">
+    </div>
+    <div class="field">
+      <label>身份</label>
+      <input id="examRole" type="text" placeholder="實習生 / PGY">
+    </div>
+    <div class="field">
+      <label>評分者</label>
+      <input id="examEvaluator" type="text" placeholder="請輸入評分老師姓名">
+    </div>
+  </div>
+
+  <div class="section-label">關鍵步驟 Checklist</div>
+  <div class="checklist" id="checklist"></div>
+
+  <div class="section-label">EPA 信賴等級（整體評分）</div>
+  <div class="status-msg" style="margin:0 0 10px;">觀察學員後，請評估「下次遇到類似情境時，此學員勝任的程度」。</div>
+  <div class="entrust-wrap" id="entrustWrap"></div>
+
+  <div class="submit-bar">
+    <div>
+      <div class="result" id="examResult">關鍵步驟：0/3　總步驟：0/10　信賴等級：未選擇</div>
+      <div class="status-msg" id="examStatus">評分完成後按送出，會寫入試算表紀錄成績。</div>
+    </div>
+    <button id="submitBtn" onclick="submitExam()">送出成績</button>
+  </div>
+
+  <footer class="note">
+    藥學互動式教學平台 · DOPS 磨粉站 · 評分資料與OSCE共用同一份試算表，各站別自動分頁記錄
+  </footer>
+</div>
+
+<script>
+const checklistItems = [
+  {t:"核對醫囑／處方內容（病人、藥品、劑量、磨粉指示）", critical:true},
+  {t:"洗手與穿戴防護裝備（手套、口罩）", critical:false},
+  {t:"檢查磨粉機清潔狀況，使用前確認無殘留", critical:false},
+  {t:"核對藥品外觀、有效期限與批號", critical:false},
+  {t:"辨識藥品是否不可磨粉（腸溶錠／持續釋放劑型等禁忌）", critical:true},
+  {t:"正確計數／秤重所需錠數", critical:false},
+  {t:"操作磨粉機完成研磨，過程避免藥粉外漏污染", critical:false},
+  {t:"分裝並標示藥品資訊（病人、藥名、劑量、日期）", critical:false},
+  {t:"磨粉機清潔消毒，避免交叉污染", critical:true},
+  {t:"廢棄物與周邊環境清潔整理", critical:false}
+];
+
+const entrustLevels = [
+  {lvl:"2a", label:"教師在旁逐步協助", desc:"教師需在旁，逐步協助學員完成操作。"},
+  {lvl:"2b", label:"教師在旁必要時協助", desc:"教師在旁，學員可自行進行，必要時才由教師協助。"},
+  {lvl:"3a", label:"教師事後逐項確認", desc:"學員自行完成操作，教師於事後逐項確認。"},
+  {lvl:"3b", label:"教師事後重點確認", desc:"學員自行完成操作，教師於事後針對重點項目確認。"},
+  {lvl:"3c", label:"必要時請教師確認", desc:"學員自行完成操作，僅在有需要時才請教師確認。"},
+  {lvl:"4", label:"獨立執行", desc:"能獨立、正確且安全地完成整個操作，不需教師確認。"},
+  {lvl:"5", label:"可指導其他人", desc:"具備教學能力，可指導其他人完成此項操作。"}
+];
+function getEntrust(lvl){ return entrustLevels.find(e => e.lvl === lvl); }
+
+let checkState = new Array(checklistItems.length).fill(false);
+let selectedEntrust = null;
+
+function renderChecklist(){
+  const box = document.getElementById("checklist");
+  box.innerHTML = "";
+  checklistItems.forEach((item, i) => {
+    const row = document.createElement("div");
+    row.className = "check-item" + (item.critical ? " critical" : "");
+    row.innerHTML = `
+      <div class="pill-check" id="pill-${i}" onclick="toggleCheck(${i})"></div>
+      <div class="check-text">
+        <div class="t">${item.t}</div>
+        ${item.critical ? '<div class="c">關鍵步驟</div>' : ''}
+      </div>
+    `;
+    box.appendChild(row);
+  });
+}
+
+function toggleCheck(i){
+  checkState[i] = !checkState[i];
+  document.getElementById(`pill-${i}`).classList.toggle("on", checkState[i]);
+  updateResult();
+}
+
+function renderEntrust(){
+  const box = document.getElementById("entrustWrap");
+  box.innerHTML = "";
+  entrustLevels.forEach(e => {
+    const row = document.createElement("div");
+    row.className = "entrust-option";
+    row.id = `entrust-${e.lvl}`;
+    row.onclick = () => selectEntrust(e.lvl);
+    row.innerHTML = `
+      <div class="lvl">Lv.${e.lvl}</div>
+      <div class="desc"><b>${e.label}</b><br>${e.desc}</div>
+    `;
+    box.appendChild(row);
+  });
+}
+
+function selectEntrust(lvl){
+  selectedEntrust = lvl;
+  entrustLevels.forEach(e => {
+    document.getElementById(`entrust-${e.lvl}`).classList.toggle("selected", e.lvl === lvl);
+  });
+  updateResult();
+}
+
+function updateResult(){
+  const totalScore = checkState.filter(Boolean).length;
+  const criticalIdx = checklistItems.map((it,i)=>it.critical?i:-1).filter(i=>i>=0);
+  const criticalHit = criticalIdx.filter(i=>checkState[i]).length;
+  const entrustText = selectedEntrust ? `Lv.${selectedEntrust} ${getEntrust(selectedEntrust).label}` : "未選擇";
+  document.getElementById("examResult").textContent =
+    `關鍵步驟：${criticalHit}/${criticalIdx.length}　總步驟：${totalScore}/${checklistItems.length}　信賴等級：${entrustText}`;
+}
+
+/* ---------------- Submit to Google Apps Script ---------------- */
+// 與OSCE站別共用同一個Apps Script網址，資料會寫入同一份試算表的不同分頁
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzNclNY9w_eokpZMqkOKzhc0rHLpH6Fc7Cr0jFyKHiSXn5BqtFKYIckKR-vBXhVp3r4lw/exec";
+
+function submitExam(){
+  const name = document.getElementById("examName").value.trim();
+  const role = document.getElementById("examRole").value.trim();
+  const evaluator = document.getElementById("examEvaluator").value.trim();
+  const statusEl = document.getElementById("examStatus");
+
+  if(!name){
+    statusEl.textContent = "請先輸入學生姓名再送出。";
+    statusEl.style.color = "var(--alert)";
+    return;
+  }
+  if(!selectedEntrust){
+    statusEl.textContent = "請先選擇EPA信賴等級再送出。";
+    statusEl.style.color = "var(--alert)";
+    return;
+  }
+
+  const totalScore = checkState.filter(Boolean).length;
+  const criticalIdx = checklistItems.map((it,i)=>it.critical?i:-1).filter(i=>i>=0);
+  const criticalHit = criticalIdx.filter(i=>checkState[i]).length;
+  const pass = criticalHit === criticalIdx.length;
+
+  const payload = {
+    station: "DOPS：磨粉站",
+    name, role, evaluator,
+    date: new Date().toISOString().slice(0,10),
+    items: checklistItems.map((it,i)=>({t:it.t, critical:it.critical, done:checkState[i]})),
+    totalScore, totalItems: checklistItems.length,
+    criticalHit, criticalTotal: criticalIdx.length,
+    pass,
+    entrustLevel: selectedEntrust,
+    entrustLabel: getEntrust(selectedEntrust).label
+  };
+
+  document.getElementById("submitBtn").disabled = true;
+
+  fetch(GAS_URL, {
+    method: "POST",
+    headers: {"Content-Type":"text/plain"},
+    body: JSON.stringify(payload)
+  }).then(r => r.text()).then(() => {
+    statusEl.textContent = `已送出：${name}（信賴等級 Lv.${selectedEntrust}），成績已寫入試算表。`;
+    statusEl.style.color = "var(--success)";
+  }).catch(() => {
+    statusEl.textContent = "送出失敗，請檢查網路連線或Apps Script網址設定。";
+    statusEl.style.color = "var(--alert)";
+    document.getElementById("submitBtn").disabled = false;
+  });
+}
+
+renderChecklist();
+renderEntrust();
+updateResult();
+</script>
+</body>
+</html>
