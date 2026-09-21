@@ -198,7 +198,7 @@
         <input id="examRole" type="text" placeholder="實習生 / PGY">
       </div>
       <div>
-        <div class="timer" id="timerDisplay">08:00</div>
+        <div class="timer" id="timerDisplay">15:00</div>
         <div class="timer-btns">
           <button onclick="startTimer()">開始</button>
           <button onclick="resetTimer()">重設</button>
@@ -612,32 +612,43 @@ function updateExamResult(){
     `關鍵步驟：${criticalHit}/${criticalIdx.length}　總分：${totalScore}/${checklistItems.length}`;
 }
 
-/* ---------------- Timer ---------------- */
-let timerSeconds = 8*60;
+/* ---------------- Timer（15分鐘倒數，並記錄實際用時） ---------------- */
+const TIME_LIMIT = 15*60;
+let timerRemaining = TIME_LIMIT;
 let timerInterval = null;
-function tickTimer(){
-  const m = String(Math.floor(timerSeconds/60)).padStart(2,"0");
-  const s = String(timerSeconds%60).padStart(2,"0");
+let timerStarted = false;   // 是否曾按過「開始」，沒按過就不記錄用時
+
+function paintTimer(){
+  const m = String(Math.floor(timerRemaining/60)).padStart(2,"0");
+  const s = String(timerRemaining%60).padStart(2,"0");
   const disp = document.getElementById("timerDisplay");
   disp.textContent = `${m}:${s}`;
-  disp.classList.toggle("low", timerSeconds <= 60);
-  if(timerSeconds <= 0){
-    clearInterval(timerInterval);
-    timerInterval = null;
-    return;
-  }
-  timerSeconds--;
+  disp.classList.toggle("low", timerRemaining <= 60);
+}
+function stopTimer(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+}
+function tickTimer(){
+  if(timerRemaining > 0) timerRemaining--;
+  paintTimer();
+  if(timerRemaining <= 0) stopTimer();
 }
 function startTimer(){
-  if(timerInterval) return;
+  if(timerInterval || timerRemaining <= 0) return;
+  timerStarted = true;
   timerInterval = setInterval(tickTimer, 1000);
 }
 function resetTimer(){
-  clearInterval(timerInterval);
-  timerInterval = null;
-  timerSeconds = 8*60;
-  tickTimer();
-  timerSeconds = 8*60;
+  stopTimer();
+  timerRemaining = TIME_LIMIT;
+  timerStarted = false;
+  paintTimer();
+}
+function elapsedInfo(){
+  if(!timerStarted) return {sec:null, text:""};
+  const sec = TIME_LIMIT - timerRemaining;
+  const m = Math.floor(sec/60), s = sec%60;
+  return {sec, text: `${m}分${String(s).padStart(2,"0")}秒` + (timerRemaining <= 0 ? "（時間到）" : "")};
 }
 
 /* ---------------- Submit to Google Apps Script ---------------- */
@@ -655,6 +666,9 @@ function submitExam(){
     return;
   }
 
+  stopTimer();                 // 送出時停止計時，凍結用時
+  const elapsed = elapsedInfo();
+
   const totalScore = checkState.filter(Boolean).length;
   const criticalIdx = checklistItems.map((it,i)=>it.critical?i:-1).filter(i=>i>=0);
   const criticalHit = criticalIdx.filter(i=>checkState[i]).length;
@@ -667,7 +681,9 @@ function submitExam(){
     items: checklistItems.map((it,i)=>({t:it.t, critical:it.critical, done:checkState[i]})),
     totalScore, totalItems: checklistItems.length,
     criticalHit, criticalTotal: criticalIdx.length,
-    pass
+    pass,
+    durationSec: elapsed.sec,
+    durationText: elapsed.text
   };
 
   document.getElementById("submitBtn").disabled = true;
@@ -684,7 +700,7 @@ function submitExam(){
     headers: {"Content-Type":"text/plain"}, // 避免CORS preflight，比照RX-03做法
     body: JSON.stringify(payload)
   }).then(r => r.text()).then(() => {
-    statusEl.textContent = `已送出：${name}（${pass?"通過":"未通過"}），成績已寫入試算表。`;
+    statusEl.textContent = `已送出：${name}（${pass?"通過":"未通過"}${elapsed.text ? "，用時 " + elapsed.text : ""}），成績已寫入試算表。`;
     statusEl.style.color = "var(--success)";
   }).catch(() => {
     statusEl.textContent = "送出失敗，請檢查網路連線或Apps Script網址設定。";
@@ -704,7 +720,7 @@ function switchMode(mode){
 /* ---------------- Init ---------------- */
 renderStep();
 renderChecklist();
-tickTimer();
+paintTimer();
 </script>
 </body>
 </html>
