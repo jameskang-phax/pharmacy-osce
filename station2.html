@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>藥物衛教站｜OSCE 互動教學</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F1F3EE;
+    --card:#FFFFFF;
+    --ink:#16302A;
+    --ink-soft:#4A6058;
+    --amber:#C98A2C;
+    --amber-deep:#9C6A1E;
+    --amber-pale:#F3E3C6;
+    --alert:#B23A2F;
+    --alert-pale:#F5DEDB;
+    --success:#3F7D58;
+    --success-pale:#DCEAE1;
+    --line:#D8DCD2;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:28px 28px;
+    background-position:-1px -1px;
+    color:var(--ink);
+    font-family:"Noto Sans TC", sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:28px 20px 80px;}
+
+  /* ---- Header / chart tab nav ---- */
+  header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap;}
+  .brand{display:flex;flex-direction:column;gap:2px;}
+  .brand .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--amber-deep);text-transform:uppercase;}
+  .brand h1{font-family:"Noto Serif TC",serif;font-weight:900;font-size:clamp(22px,4vw,30px);margin:2px 0 0;}
+
+  .tabbar{display:flex;gap:0;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px;box-shadow:0 1px 0 rgba(22,48,42,.04);}
+  .tabbar button{
+    appearance:none;border:0;background:transparent;
+    font-family:"Noto Sans TC",sans-serif;font-weight:700;font-size:14px;
+    color:var(--ink-soft);padding:9px 18px;border-radius:999px;cursor:pointer;
+    transition:background .18s ease, color .18s ease;
+  }
+  .tabbar button.active{background:var(--ink);color:#fff;}
+  .tabbar button:not(.active):hover{background:var(--paper);}
+
+  /* ---- Scenario card ---- */
+  .case-card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px 24px;margin-bottom:20px;
+    box-shadow:0 1px 2px rgba(22,48,42,.05);
+    position:relative;
+  }
+  .case-card::before{
+    content:"情境卡";
+    position:absolute;top:-11px;left:20px;background:var(--ink);color:#fff;
+    font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;
+    padding:3px 10px;border-radius:6px;
+  }
+  .case-card h2{font-family:"Noto Serif TC",serif;font-size:19px;margin:6px 0 10px;}
+  .case-card p{line-height:1.85;color:var(--ink-soft);margin:0 0 8px;font-size:15px;}
+  .tag-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .tag{font-family:"IBM Plex Mono",monospace;font-size:11.5px;background:var(--amber-pale);color:var(--amber-deep);padding:4px 10px;border-radius:6px;}
+
+  /* ---- Practice mode: step flow ---- */
+  .step{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px 22px;margin-bottom:16px;
+  }
+  .step .step-label{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .step .num{
+    width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:13px;flex-shrink:0;
+  }
+  .step .num.done{background:var(--success);}
+  .step h3{font-family:"Noto Serif TC",serif;font-size:16px;margin:0;}
+  .step .speaker{font-size:14.5px;color:var(--ink-soft);line-height:1.8;margin:0 0 14px 36px;padding:10px 14px;background:var(--paper);border-radius:10px;border-left:3px solid var(--amber);}
+  .choices{display:flex;flex-direction:column;gap:8px;margin-left:36px;}
+  .choice{
+    text-align:left;border:1px solid var(--line);background:#fff;border-radius:10px;
+    padding:11px 14px;font-family:"Noto Sans TC",sans-serif;font-size:14.5px;color:var(--ink);
+    cursor:pointer;transition:border-color .15s ease, background .15s ease;
+  }
+  .choice:hover{border-color:var(--amber);}
+  .choice.picked-correct{border-color:var(--success);background:var(--success-pale);}
+  .choice.picked-wrong{border-color:var(--alert);background:var(--alert-pale);}
+  .choice[disabled]{cursor:default;}
+  .feedback{margin:10px 0 0 36px;font-size:14px;line-height:1.75;padding:10px 14px;border-radius:10px;display:none;white-space:pre-line;}
+  .feedback.show{display:block;}
+  .feedback.good{background:var(--success-pale);color:#245038;}
+  .feedback.bad{background:var(--alert-pale);color:#7c2820;}
+
+  .next-btn{display:block;margin:14px 0 0 36px;background:var(--ink);color:#fff;border:0;border-radius:10px;
+    padding:10px 20px;font-weight:700;font-size:14px;cursor:pointer;}
+  .next-btn:hover{background:var(--amber-deep);}
+  .hidden{display:none !important;}
+
+  /* ---- Summary ---- */
+  .summary{background:var(--ink);color:#fff;border-radius:var(--radius);padding:26px;margin-top:8px;}
+  .summary h3{font-family:"Noto Serif TC",serif;margin:0 0 4px;font-size:19px;}
+  .summary .score-big{font-family:"IBM Plex Mono",monospace;font-size:40px;font-weight:600;color:var(--amber);margin:8px 0;}
+  .summary ul{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:6px;}
+  .summary li{font-size:13.5px;color:#DCE6E1;display:flex;gap:8px;align-items:flex-start;}
+  .summary li .mark{flex-shrink:0;}
+  .summary li.miss{color:#F0C8C2;}
+
+  /* ---- Exam mode ---- */
+  .exam-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px;}
+  .field{display:flex;flex-direction:column;gap:4px;}
+  .field label{font-size:12px;color:var(--ink-soft);font-weight:700;}
+  .field input{font-family:"Noto Sans TC",sans-serif;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;}
+  .timer{
+    font-family:"IBM Plex Mono",monospace;font-size:26px;font-weight:600;color:var(--ink);
+    background:var(--amber-pale);border:1px solid var(--amber);padding:6px 16px;border-radius:10px;
+  }
+  .timer.low{color:var(--alert);background:var(--alert-pale);border-color:var(--alert);}
+  .timer-btns button{font-family:"Noto Sans TC";font-size:12.5px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;margin-left:6px;cursor:pointer;}
+
+  .checklist{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:18px;}
+  .check-item{display:flex;align-items:flex-start;gap:12px;padding:13px 18px;border-bottom:1px solid var(--line);}
+  .check-item:last-child{border-bottom:0;}
+  .check-item.critical{background:#FFFCF6;}
+  .pill-check{
+    width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex-shrink:0;margin-top:2px;
+    cursor:pointer;position:relative;transition:border-color .15s ease, background .15s ease;
+  }
+  .pill-check.on{background:var(--amber);border-color:var(--amber-deep);}
+  .pill-check.on::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;}
+  .check-text{flex:1;}
+  .check-text .t{font-size:14.5px;font-weight:500;}
+  .check-text .c{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--alert);letter-spacing:.06em;margin-top:2px;}
+
+  .submit-bar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 20px;}
+  .submit-bar .result{font-family:"IBM Plex Mono",monospace;font-size:14px;}
+  .submit-bar button{background:var(--ink);color:#fff;border:0;border-radius:10px;padding:11px 22px;font-weight:700;font-size:14.5px;cursor:pointer;}
+  .submit-bar button:hover{background:var(--amber-deep);}
+  .submit-bar button:disabled{background:var(--line);cursor:not-allowed;}
+  .status-msg{font-size:12.5px;color:var(--ink-soft);margin-top:8px;}
+
+  footer.note{margin-top:26px;font-size:12px;color:var(--ink-soft);text-align:center;line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <span class="eyebrow">OSCE · 站別二</span>
+      <h1>藥物衛教站</h1>
+    </div>
+    <div class="tabbar">
+      <button id="tab-practice" class="active" onclick="switchMode('practice')">練習模式</button>
+      <button id="tab-exam" onclick="switchMode('exam')">評分模式</button>
+    </div>
+  </header>
+
+  <div class="case-card">
+    <h2>林先生，56歲</h2>
+    <p>本次門診新診斷為第二型糖尿病，醫師開立基礎胰島素筆與 Metformin。這是他第一次要自己打針，明顯緊張；聊天時還提到，親戚推薦了一種「天然降血糖的中藥粉」，他已經吃了兩個星期。請你在門診藥局衛教室，為他完成用藥衛教。（教學模擬個案，情境與數值皆為虛構）</p>
+    <div class="tag-row">
+      <span class="tag">新診斷：第二型糖尿病</span>
+      <span class="tag">Insulin glargine 100 U/mL 筆型 10單位 睡前</span>
+      <span class="tag">Metformin 500 mg BID 隨餐</span>
+      <span class="tag">HbA1c 9.6%</span>
+      <span class="tag">空腹血糖 198 mg/dL</span>
+      <span class="tag">eGFR 85</span>
+      <span class="tag">自行服用中藥粉 2週</span>
+    </div>
+  </div>
+
+  <!-- ================= PRACTICE MODE ================= -->
+  <div id="mode-practice">
+    <div id="steps"></div>
+    <div id="summary-practice" class="summary hidden"></div>
+  </div>
+
+  <!-- ================= EXAM MODE ================= -->
+  <div id="mode-exam" class="hidden">
+
+    <div class="exam-head">
+      <div class="field">
+        <label>學生姓名</label>
+        <input id="examName" type="text" placeholder="請輸入姓名">
+      </div>
+      <div class="field">
+        <label>身份</label>
+        <input id="examRole" type="text" placeholder="實習生 / PGY">
+      </div>
+      <div>
+        <div class="timer" id="timerDisplay">08:00</div>
+        <div class="timer-btns">
+          <button onclick="startTimer()">開始</button>
+          <button onclick="resetTimer()">重設</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="checklist" id="checklist"></div>
+
+    <div class="submit-bar">
+      <div>
+        <div class="result" id="examResult">關鍵步驟：0/4　總分：0/12</div>
+        <div class="status-msg" id="examStatus">評分完成後按送出，會寫入試算表紀錄成績。</div>
+      </div>
+      <button id="submitBtn" onclick="submitExam()">送出成績</button>
+    </div>
+  </div>
+
+  <footer class="note">
+    麻豆新樓醫院藥劑科 OSCE 互動教學 · 站別二：藥物衛教站<br>
+    評分模式送出資料串接 Google Apps Script，成績自動寫入試算表
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   共用資料：練習模式的分支選項 + 評分模式的checklist
+   兩者的「關鍵步驟」互相對應，方便老師比對練習表現與正式評分
+   ============================================================ */
+
+/* 關鍵步驟對應：
+   練習模式步驟3「胰島素筆操作示範」 ↔ checklist「胰島素筆示範：排氣與劑量確認」
+   練習模式步驟5「低血糖辨識與處理」 ↔ checklist「低血糖症狀與處理」
+   練習模式步驟7「中藥併用疑慮」     ↔ checklist「詢問中藥並說明併用風險」
+   練習模式步驟8「Teach-back與結束」  ↔ checklist「使用 teach-back」 */
+const steps = [
+  {
+    "id": "open",
+    "title": "開場與評估起點",
+    "speaker": "（林先生緊張地在衛教室坐下）林先生：「藥師你好……醫生說我要打胰島素，我從來沒打過針，心裡很怕。」",
+    "choices": [
+      {
+        "text": "「林先生你好，我來示範一次胰島素筆怎麼用。」直接開始操作示範。",
+        "correct": false,
+        "fb": "能快速進入重點，但還沒確認身份，也沒了解病人目前知道多少、擔心什麼，衛教容易講錯重點。"
+      },
+      {
+        "text": "「別緊張，打針一點都不難，我教你就會了。」",
+        "correct": false,
+        "fb": "雖然想安撫病人，但這句話否定了病人的感受，也沒有做身份確認與需求評估。"
+      },
+      {
+        "text": "自我介紹後，請病人說出姓名與生日確認身份，再問：「醫師跟您說明過糖尿病和胰島素嗎？您最擔心的是什麼？」",
+        "correct": true,
+        "fb": "先確認身份，再從病人已知的資訊與擔心切入，能讓後面的衛教更貼近他的需要。"
+      }
+    ],
+    "ideal": "自我介紹→以兩項資料確認身份→詢問病人對糖尿病與胰島素的了解，以及最擔心的事。"
+  },
+  {
+    "id": "concern",
+    "title": "回應對打針的焦慮",
+    "speaker": "林先生：「我最怕痛……而且是不是打了胰島素，以後就一輩子都要打？」",
+    "choices": [
+      {
+        "text": "「放心，打一陣子血糖穩了就不用再打了。」",
+        "correct": false,
+        "fb": "這是沒有根據的保證。胰島素會不會調整或停用，要看之後的血糖控制與醫師評估，不能先承諾。"
+      },
+      {
+        "text": "先說「會怕很正常」，再說明針頭又細又短，痛感通常很輕，可以先拿示範筆練習；也誠實說明胰島素是幫忙把血糖控制好，之後是否調整要由醫師依血糖追蹤決定。",
+        "correct": true,
+        "fb": "先同理，再用具體事實降低恐懼，並誠實回答，不亂保證，也不嚇病人。"
+      },
+      {
+        "text": "「大家都要打，習慣就好了。」",
+        "correct": false,
+        "fb": "沒有說錯，但這樣講沒有回應病人「怕痛」與「一輩子」的具體擔心，也缺少讓他安心的具體資訊。"
+      }
+    ],
+    "ideal": "同理感受→說明針頭細短、可先練習→誠實說明胰島素的目的，以及是否長期使用由醫師依追蹤結果決定。"
+  },
+  {
+    "id": "pen",
+    "title": "胰島素筆操作示範",
+    "speaker": "林先生：「好，那你示範給我看吧，我要怎麼打？」（桌上放有示範用胰島素筆、新針頭與利器盒）",
+    "choices": [
+      {
+        "text": "裝上新針頭→排氣（安全測試）→轉到 10 單位→注射→按到底後立刻拔針→針頭丟入利器盒。",
+        "correct": false,
+        "fb": "前面步驟正確，但按到底後要停留一下再拔針（依筆型說明書，常見為約 10 秒），太快拔出可能讓藥量不足。"
+      },
+      {
+        "text": "裝上新針頭→直接轉到 10 單位→注射→拔針，省略排氣，避免浪費藥。",
+        "correct": false,
+        "fb": "省略排氣（安全測試）是錯誤做法。它可確認針頭通暢、筆能正常出藥，不做可能導致實際劑量不足。"
+      },
+      {
+        "text": "確認藥名與外觀（澄清無色）→裝上新針頭→排氣（安全測試，約 2 單位，依說明書）確認出藥→轉到處方 10 單位並複看窗口→注射，按到底後停留約 10 秒（依說明書）再拔針→針頭丟入利器盒。",
+        "correct": true,
+        "fb": "流程完整：確認藥品、排氣、劑量確認、注射停留、針頭處理都有涵蓋。"
+      }
+    ],
+    critical:true,
+    "ideal": "確認藥品→裝針→排氣（依說明書，約 2 單位）→轉到處方劑量並再確認→注射，按到底後停留約 10 秒（依說明書）→拔針→針頭丟入利器盒。"
+  },
+  {
+    "id": "rotate",
+    "title": "注射部位輪替",
+    "speaker": "林先生：「我想說每天都打肚子同一個點好了，這樣比較好記，也不會亂打。」",
+    "choices": [
+      {
+        "text": "「注射部位最好輪流換，不要一直打同一個地方。」",
+        "correct": false,
+        "fb": "方向正確，但只說「要輪流」沒有告訴病人怎麼做，病人回去仍不知道怎麼換。"
+      },
+      {
+        "text": "「可以，固定同一個點比較不會痛，也比較容易記。」",
+        "correct": false,
+        "fb": "長期固定同一點會造成皮下脂肪增生或硬塊，影響胰島素吸收，血糖反而更不穩。"
+      },
+      {
+        "text": "說明固定同一點可能造成皮下硬塊、影響吸收；建議選定腹部等一個區域，在區域內每次移開約一指寬輪流注射，並避開肚臍周圍、疤痕與硬塊。",
+        "correct": true,
+        "fb": "說明原因，也給了具體且好執行的輪替方法。"
+      }
+    ],
+    "ideal": "說明原因（避免皮下硬塊影響吸收）→區域內輪替，每次移開約一指寬→避開肚臍周圍、疤痕、硬塊。保存方式（未開封冷藏、使用中室溫約 28 天）也可在此一併提醒。"
+  },
+  {
+    "id": "hypo",
+    "title": "低血糖的辨識與處理",
+    "speaker": "林先生：「如果我打完針，突然心跳很快、一直冒冷汗又發抖，那是怎麼了？要怎麼辦？」",
+    "choices": [
+      {
+        "text": "「可能只是太緊張，休息一下、睡一覺就好。」",
+        "correct": false,
+        "fb": "這些可能是低血糖症狀，延誤處理有危險。使用胰島素的病人一定要教會辨識與處理。"
+      },
+      {
+        "text": "「可能是低血糖，趕快吃點東西，像餅乾或巧克力都可以。」",
+        "correct": false,
+        "fb": "知道是低血糖是對的，但餅乾、巧克力含脂肪，吸收較慢；也沒有說明先量血糖、份量與 15 分鐘後複測。"
+      },
+      {
+        "text": "說明可能是低血糖（常見症狀：冒冷汗、心悸、發抖、飢餓、頭暈）；有血糖機先測血糖，低於 70 mg/dL 或有症狀時，立刻吃 15–20 公克快速糖（如葡萄糖錠或約半杯果汁／含糖飲料）；15 分鐘後再測，未改善就再吃一次；若意識不清，家人不要餵食，立即撥打 119。",
+        "correct": true,
+        "fb": "症狀辨識、處理份量、複測時間、緊急狀況都涵蓋。"
+      }
+    ],
+    critical:true,
+    "ideal": "辨識症狀→測血糖（<70 mg/dL 或有症狀）→15–20 公克快速糖→15 分鐘後複測，未改善重複→意識不清不餵食、撥打 119。也提醒病人隨身攜帶糖。"
+  },
+  {
+    "id": "metformin",
+    "title": "Metformin 的服用與副作用",
+    "speaker": "林先生：「另外那個 Metformin，我要什麼時候吃？會不會有什麼副作用？」",
+    "choices": [
+      {
+        "text": "說明隨餐或餐後立刻服用，可減少腸胃不適；剛開始可能有噁心、腹瀉、脹氣，多數會逐漸改善，不舒服不要自己停藥，先告訴我們；若有嚴重嘔吐、腹瀉導致脫水，或要做顯影劑檢查、手術，請先告知醫療人員。",
+        "correct": true,
+        "fb": "服用時間、常見副作用、處理方式與需要告知的特殊情況都有說明。"
+      },
+      {
+        "text": "「空腹吃吸收比較好，有不舒服就自己停藥觀察。」",
+        "correct": false,
+        "fb": "Metformin 建議隨餐或餐後服用以減少腸胃不適；不舒服應先詢問醫療人員，不要自行停藥。"
+      },
+      {
+        "text": "「飯後吃就可以了，有點腸胃不舒服很正常。」",
+        "correct": false,
+        "fb": "服用時間正確，但缺少不舒服時的處理，以及需要提早告知醫療人員的特殊情況。"
+      }
+    ],
+    "ideal": "隨餐或餐後服用→常見腸胃副作用多在初期→不舒服先詢問、不自行停藥→嚴重嘔吐腹瀉脫水、顯影劑檢查或手術前須告知。"
+  },
+  {
+    "id": "herbal",
+    "title": "中藥併用的疑慮",
+    "speaker": "林先生：「對了，我親戚介紹我吃一種天然的降血糖中藥粉，我吃兩個禮拜了。這個可以跟你們的藥一起吃嗎？」",
+    "choices": [
+      {
+        "text": "「中藥很安全，一起吃沒關係。」",
+        "correct": false,
+        "fb": "不能保證安全。來路不明的藥粉可能含未標示成分，也可能增加低血糖風險，必須先了解內容。"
+      },
+      {
+        "text": "「中藥和西藥可能有交互作用，最好不要一起吃。」",
+        "correct": false,
+        "fb": "提醒方向沒錯，但沒有先了解是什麼產品，也沒有給出後續建議，語氣容易讓病人覺得被否定。"
+      },
+      {
+        "text": "不責備，先詢問產品名稱、成分、來源、劑量與服用時間；說明來路不明的降血糖產品曾被檢出非法添加西藥成分，和胰島素併用可能造成低血糖；請病人把包裝帶給醫師或藥師評估，在評估前不要自行加量，也不要自己停掉處方的降血糖藥。",
+        "correct": true,
+        "fb": "先保持信任並蒐集資訊，再說明風險，最後給出安全的下一步。"
+      }
+    ],
+    critical:true,
+    "ideal": "不責備→詢問產品名稱、成分、來源、劑量→說明來路不明產品的風險（含低血糖）→請病人帶包裝給醫師或藥師評估→不自行加量、不自行停處方藥。"
+  },
+  {
+    "id": "teachback",
+    "title": "Teach-back 與結束",
+    "speaker": "林先生（點點頭）：「嗯，好，我大概懂了。」",
+    "choices": [
+      {
+        "text": "「好，那有問題再來問我，這是衛教單。」提供衛教單後結束。",
+        "correct": false,
+        "fb": "有給資料是好的，但沒有確認病人是否真的會做，「大概懂了」不等於會操作。"
+      },
+      {
+        "text": "「為了確認我有講清楚，可以請您用自己的話說說看：怎麼打針、低血糖時怎麼辦？」請病人說明並親手用示範筆操作一次，針對遺漏處再補充，最後給書面衛教資料並留下藥師諮詢方式。",
+        "correct": true,
+        "fb": "用 teach-back 讓病人說出並做出來，才知道他真的懂，並補上遺漏的部分。"
+      },
+      {
+        "text": "「你都懂了嗎？」病人回答「懂」就結束。",
+        "correct": false,
+        "fb": "是非題式的問法只能得到「懂」或「不懂」，無法確認病人是否真的會做。"
+      }
+    ],
+    critical:true,
+    "ideal": "用「請您說說看」的方式，請病人口述並親手操作→針對錯誤或遺漏再說明→提供書面衛教與藥師諮詢方式。"
+  }
+];
+
+// 選項順序每次載入時隨機排列（同一次練習內固定），避免正確答案總在同一個位置
+(function(){
+  steps.forEach(s => {
+    const a = s.choices;
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+  });
+})();
+
+const checklistItems = [
+  {
+    "t": "自我介紹，並以兩項資料確認病人身份（姓名＋生日）",
+    "critical": false
+  },
+  {
+    "t": "詢問病人對糖尿病與胰島素的認知與擔心",
+    "critical": false
+  },
+  {
+    "t": "同理病人對打針的焦慮，並說明胰島素治療的目的",
+    "critical": false
+  },
+  {
+    "t": "胰島素筆示範：確認藥品、裝針頭、排氣（安全測試）、轉至處方劑量並確認",
+    "critical": true
+  },
+  {
+    "t": "注射示範：注射後停留足夠時間再拔針（依筆型說明書），針頭丟入利器盒",
+    "critical": false
+  },
+  {
+    "t": "說明注射部位輪替方法，並提醒胰島素保存方式（未開封冷藏、使用中室溫）",
+    "critical": false
+  },
+  {
+    "t": "說明低血糖症狀與處理（測血糖、15–20 公克快速糖、15 分鐘複測、意識不清求助）",
+    "critical": true
+  },
+  {
+    "t": "說明 Metformin 隨餐或餐後服用，以及常見腸胃副作用與處理",
+    "critical": false
+  },
+  {
+    "t": "說明需告知醫療人員的情況（嚴重嘔吐腹瀉脫水、顯影劑檢查或手術前）",
+    "critical": false
+  },
+  {
+    "t": "詢問中藥名稱、成分、來源與服用方式，說明併用風險，並建議不自行停藥或加量",
+    "critical": true
+  },
+  {
+    "t": "使用 teach-back：請病人口述或親手操作，並針對不足處補充說明",
+    "critical": true
+  },
+  {
+    "t": "提供書面衛教資料與藥師諮詢管道，適當結束",
+    "critical": false
+  }
+];
+
+/* ---------------- Practice mode logic ---------------- */
+let current = 0;
+let results = []; // {id, title, correct, critical}
+
+function renderStep(){
+  const box = document.getElementById("steps");
+  box.innerHTML = "";
+  steps.forEach((s, i) => {
+    if(i > current) return;
+    const done = i < current;
+    const el = document.createElement("div");
+    el.className = "step";
+    el.innerHTML = `
+      <div class="step-label">
+        <div class="num ${done?'done':''}">${done?'✓':(i+1)}</div>
+        <h3>${s.title}${s.critical?'　<span style="font-family:\'IBM Plex Mono\',monospace;font-size:10.5px;color:var(--alert);">關鍵步驟</span>':''}</h3>
+      </div>
+      <p class="speaker">${s.speaker}</p>
+      <div class="choices" id="choices-${i}"></div>
+      <div class="feedback" id="fb-${i}"></div>
+      ${i===current ? '' : ''}
+    `;
+    box.appendChild(el);
+
+    const cWrap = el.querySelector(`#choices-${i}`);
+    s.choices.forEach((c, ci) => {
+      const btn = document.createElement("button");
+      btn.className = "choice";
+      btn.textContent = c.text;
+      if(i < current){
+        btn.disabled = true;
+        if(results[i] && results[i].pickedText === c.text){
+          btn.classList.add(results[i].correct ? "picked-correct" : "picked-wrong");
+        }
+      } else {
+        btn.onclick = () => pickChoice(i, ci);
+      }
+      cWrap.appendChild(btn);
+    });
+
+    if(i < current && results[i]){
+      const fb = el.querySelector(`#fb-${i}`);
+      fb.className = "feedback show " + (results[i].correct ? "good" : "bad");
+      fb.textContent = (results[i].correct ? "✓ " : "△ ") + results[i].fb;
+    }
+  });
+
+  if(current >= steps.length){
+    showSummary();
+  }
+}
+
+function pickChoice(stepIndex, choiceIndex){
+  const s = steps[stepIndex];
+  const c = s.choices[choiceIndex];
+  const fullFb = c.fb + (!c.correct && s.ideal ? "\n理想做法：" + s.ideal : "");
+  results[stepIndex] = {id:s.id, title:s.title, correct:c.correct, critical:!!s.critical, fb:fullFb, pickedText:c.text};
+
+  // lock choices, show feedback inline before moving on
+  const cWrap = document.getElementById(`choices-${stepIndex}`);
+  [...cWrap.children].forEach((btn, idx) => {
+    btn.disabled = true;
+    if(idx === choiceIndex) btn.classList.add(c.correct ? "picked-correct" : "picked-wrong");
+  });
+  const fb = document.getElementById(`fb-${stepIndex}`);
+  fb.className = "feedback show " + (c.correct ? "good" : "bad");
+  fb.textContent = (c.correct ? "✓ " : "△ ") + fullFb;
+
+  const nextBtn = document.createElement("button");
+  nextBtn.className = "next-btn";
+  nextBtn.textContent = stepIndex === steps.length - 1 ? "完成本站" : "下一步";
+  nextBtn.onclick = () => { current++; renderStep(); };
+  fb.insertAdjacentElement("afterend", nextBtn);
+}
+
+function showSummary(){
+  const total = results.length;
+  const correctCount = results.filter(r => r.correct).length;
+  const criticalTotal = results.filter(r => r.critical).length;
+  const criticalHit = results.filter(r => r.critical && r.correct).length;
+  const box = document.getElementById("summary-practice");
+  box.classList.remove("hidden");
+  box.innerHTML = `
+    <h3>練習完成</h3>
+    <div class="score-big">${correctCount} / ${total}</div>
+    <div style="font-size:13px;color:#DCE6E1;">關鍵步驟達成：${criticalHit} / ${criticalTotal}</div>
+    <ul>
+      ${results.map(r => `<li class="${r.correct?'':'miss'}"><span class="mark">${r.correct?'✓':'△'}</span><span>${r.title}${r.critical?'（關鍵）':''}</span></li>`).join("")}
+    </ul>
+  `;
+}
+
+/* ---------------- Exam mode logic ---------------- */
+function renderChecklist(){
+  const box = document.getElementById("checklist");
+  box.innerHTML = "";
+  checklistItems.forEach((item, i) => {
+    const row = document.createElement("div");
+    row.className = "check-item" + (item.critical ? " critical" : "");
+    row.innerHTML = `
+      <div class="pill-check" id="pill-${i}" onclick="toggleCheck(${i})"></div>
+      <div class="check-text">
+        <div class="t">${item.t}</div>
+        ${item.critical ? '<div class="c">關鍵步驟</div>' : ''}
+      </div>
+    `;
+    box.appendChild(row);
+  });
+  updateExamResult();
+}
+
+let checkState = new Array(checklistItems.length).fill(false);
+function toggleCheck(i){
+  checkState[i] = !checkState[i];
+  document.getElementById(`pill-${i}`).classList.toggle("on", checkState[i]);
+  updateExamResult();
+}
+function updateExamResult(){
+  const totalScore = checkState.filter(Boolean).length;
+  const criticalIdx = checklistItems.map((it,i)=>it.critical?i:-1).filter(i=>i>=0);
+  const criticalHit = criticalIdx.filter(i=>checkState[i]).length;
+  document.getElementById("examResult").textContent =
+    `關鍵步驟：${criticalHit}/${criticalIdx.length}　總分：${totalScore}/${checklistItems.length}`;
+}
+
+/* ---------------- Timer ---------------- */
+let timerSeconds = 8*60;
+let timerInterval = null;
+function tickTimer(){
+  const m = String(Math.floor(timerSeconds/60)).padStart(2,"0");
+  const s = String(timerSeconds%60).padStart(2,"0");
+  const disp = document.getElementById("timerDisplay");
+  disp.textContent = `${m}:${s}`;
+  disp.classList.toggle("low", timerSeconds <= 60);
+  if(timerSeconds <= 0){
+    clearInterval(timerInterval);
+    timerInterval = null;
+    return;
+  }
+  timerSeconds--;
+}
+function startTimer(){
+  if(timerInterval) return;
+  timerInterval = setInterval(tickTimer, 1000);
+}
+function resetTimer(){
+  clearInterval(timerInterval);
+  timerInterval = null;
+  timerSeconds = 8*60;
+  tickTimer();
+  timerSeconds = 8*60;
+}
+
+/* ---------------- Submit to Google Apps Script ---------------- */
+// 與其他站別共用同一個 Apps Script 網址，資料寫入同一份試算表的不同分頁
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzNclNY9w_eokpZMqkOKzhc0rHLpH6Fc7Cr0jFyKHiSXn5BqtFKYIckKR-vBXhVp3r4lw/exec";
+
+function submitExam(){
+  const name = document.getElementById("examName").value.trim();
+  const role = document.getElementById("examRole").value.trim();
+  const statusEl = document.getElementById("examStatus");
+
+  if(!name){
+    statusEl.textContent = "請先輸入學生姓名再送出。";
+    statusEl.style.color = "var(--alert)";
+    return;
+  }
+
+  const totalScore = checkState.filter(Boolean).length;
+  const criticalIdx = checklistItems.map((it,i)=>it.critical?i:-1).filter(i=>i>=0);
+  const criticalHit = criticalIdx.filter(i=>checkState[i]).length;
+  const pass = criticalHit === criticalIdx.length;
+
+  const payload = {
+    station: "站別二：藥物衛教站",
+    name, role,
+    date: new Date().toISOString().slice(0,10),
+    items: checklistItems.map((it,i)=>({t:it.t, critical:it.critical, done:checkState[i]})),
+    totalScore, totalItems: checklistItems.length,
+    criticalHit, criticalTotal: criticalIdx.length,
+    pass
+  };
+
+  document.getElementById("submitBtn").disabled = true;
+
+  if(!GAS_URL){
+    statusEl.textContent = "尚未設定 GAS_URL，成績目前只在本機顯示，尚未寫入試算表。";
+    statusEl.style.color = "var(--ink-soft)";
+    document.getElementById("submitBtn").disabled = false;
+    return;
+  }
+
+  fetch(GAS_URL, {
+    method: "POST",
+    headers: {"Content-Type":"text/plain"}, // 避免CORS preflight，比照RX-03做法
+    body: JSON.stringify(payload)
+  }).then(r => r.text()).then(() => {
+    statusEl.textContent = `已送出：${name}（${pass?"通過":"未通過"}），成績已寫入試算表。`;
+    statusEl.style.color = "var(--success)";
+  }).catch(() => {
+    statusEl.textContent = "送出失敗，請檢查網路連線或Apps Script網址設定。";
+    statusEl.style.color = "var(--alert)";
+    document.getElementById("submitBtn").disabled = false;
+  });
+}
+
+/* ---------------- Mode switch ---------------- */
+function switchMode(mode){
+  document.getElementById("tab-practice").classList.toggle("active", mode==="practice");
+  document.getElementById("tab-exam").classList.toggle("active", mode==="exam");
+  document.getElementById("mode-practice").classList.toggle("hidden", mode!=="practice");
+  document.getElementById("mode-exam").classList.toggle("hidden", mode!=="exam");
+}
+
+/* ---------------- Init ---------------- */
+renderStep();
+renderChecklist();
+tickTimer();
+</script>
+</body>
+</html>
